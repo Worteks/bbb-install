@@ -777,7 +777,7 @@ HERE
     fi
 
     if [ -z "$PROVIDED_CERTIFICATE" ]; then
-      if ! certbot --email $EMAIL --agree-tos --rsa-key-size 4096 -w /var/www/bigbluebutton-default/ \
+      if ! certbot --email $EMAIL --webroot --rsa-key-size 4096 -w /var/www/bigbluebutton-default/ \
            -d $HOST --deploy-hook "systemctl restart nginx" $LETS_ENCRYPT_OPTIONS certonly; then
         cp /tmp/bigbluebutton.bak /etc/nginx/sites-available/bigbluebutton
         systemctl restart nginx
@@ -795,9 +795,13 @@ server {
   listen 80;
   listen [::]:80;
   server_name $HOST;
+  return 301 https://$host$request_uri;
+}
 
+server {
   listen 443 ssl;
   listen [::]:443 ssl;
+  server_name $HOST;
 
     ssl_certificate /etc/letsencrypt/live/$HOST/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$HOST/privkey.pem;
